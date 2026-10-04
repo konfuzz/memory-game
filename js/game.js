@@ -5,6 +5,8 @@ export default class Game {
     this.cards = [];
     this.matchedCards = [];
     this.currentCard = null;
+    this.state = 'idle';
+    this.moves = 0;
   }
 
   start() {
@@ -16,6 +18,8 @@ export default class Game {
     this.cards = initCards.map((card) => this.createCard(card));
     this.matchedCards = [];
     this.currentCard = null;
+    this.state = 'idle';
+    this.moves = 0;
   }
 
   createCard(card) {
@@ -26,27 +30,47 @@ export default class Game {
   }
 
   flipCard(id) {
+    if (this.state === 'resolving' || this.state === 'won') {
+      return { status: 'ignored' };
+    }
+
+    if (this.matchedCards.find((card) => card.id === id)) {
+      return { status: 'ignored' };
+    }
+
     if (this.currentCard) {
       if (this.currentCard.id === id) {
-        return;
-      }
-
-      if (this.matchedCards.find((card) => card.id === id)) {
-        return;
+        return { status: 'ignored' };
       }
 
       const pair = this.cards.find((card) => card.id === id);
+      if (!pair) {
+        return { status: 'ignored' };
+      }
+
+      this.moves++;
 
       if (this.currentCard.value === pair.value) {
         this.matchedCards.push(this.currentCard, pair);
         this.currentCard = null;
-        return { status: 'pair' }
+        const isWin = this.matchedCards.length === this.cards.length;
+        this.state = isWin ? 'won' : 'idle';
+        return { status: 'pair', isWin };
       }
 
       this.currentCard = null;
-      return { status: 'fail' }
+      this.state = 'resolving';
+      return { status: 'fail' };
     }
+
     this.currentCard = this.cards.find((card) => card.id === id);
+    this.state = 'oneOpen';
     return { status: 'flip' };
+  }
+
+  resolveFail() {
+    if (this.state === 'resolving') {
+      this.state = 'idle';
+    }
   }
 }

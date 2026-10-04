@@ -3,7 +3,7 @@ export default class View {
     this.gameContainer = null;
     this.game = game;
     game.start();
-    this.deck = [];
+    this.firstCard = null;
     this.createGameContainer();
     this.populateGameContainer(game.cards);
   }
@@ -12,7 +12,6 @@ export default class View {
     this.gameContainer = document.createElement('div');
     this.gameContainer.id = 'game-container';
     document.body.appendChild(this.gameContainer);
-    this.deck = [];
   }
 
   createCard(card) {
@@ -36,21 +35,28 @@ export default class View {
     cardElement.appendChild(cardInner);
 
     cardElement.addEventListener('click', () => {
-      this.deck.push(cardElement);
       const result = this.game.flipCard(cardElement.id);
-      cardElement.classList.add('active');
       switch (result.status) {
-        case 'pair':
-          this.deck = [];
-          break;
-        case 'fail':
-          setTimeout(() => {
-            this.deck[0].classList.remove('active');
-            cardElement.classList.remove('active');
-            this.deck = [];
-          }, 1000)
-          break;
         case 'flip':
+          cardElement.classList.add('active');
+          this.firstCard = cardElement;
+          break;
+        case 'pair':
+          cardElement.classList.add('active');
+          this.firstCard = null;
+          break;
+        case 'fail': {
+          const firstCard = this.firstCard;
+          this.firstCard = null;
+          cardElement.classList.add('active');
+          setTimeout(() => {
+            firstCard.classList.remove('active');
+            cardElement.classList.remove('active');
+            this.game.resolveFail();
+          }, 1000);
+          break;
+        }
+        case 'ignored':
           break;
       }
     });
