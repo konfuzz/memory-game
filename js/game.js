@@ -9,7 +9,11 @@ export default class Game {
 
   start() {
     const initCards = [...cards, ...cards];
-    this.cards = initCards.sort(() => Math.random() - 0.5).map((card) => this.createCard(card));
+    for (let i = initCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [initCards[i], initCards[j]] = [initCards[j], initCards[i]];
+    }
+    this.cards = initCards.map((card) => this.createCard(card));
     this.matchedCards = [];
     this.currentCard = null;
   }

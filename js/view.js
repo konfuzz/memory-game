@@ -6,7 +6,6 @@ export default class View {
     this.deck = [];
     this.createGameContainer();
     this.populateGameContainer(game.cards);
-    console.log(game.cards);
   }
 
   createGameContainer() {
