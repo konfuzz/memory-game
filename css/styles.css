@@ -4,6 +4,14 @@
   padding: 0;
 }
 
+#menu {
+  max-width: 790px;
+  margin: 10px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 #game-container {
   max-width: 790px;
   margin: 0 auto;

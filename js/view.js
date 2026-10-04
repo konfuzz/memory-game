@@ -4,14 +4,42 @@ export default class View {
     this.game = game;
     game.start();
     this.firstCard = null;
+    this.movesEl = null;
+    this.createMenu();
     this.createGameContainer();
-    this.populateGameContainer(game.cards);
+    this.startNewGame();
+  }
+
+  startNewGame() {
+    this.game.start();
+    this.populateGameContainer(this.game.cards);
+    this.firstCard = null;
+    this.movesEl.textContent = 'Moves: 0';
   }
 
   createGameContainer() {
     this.gameContainer = document.createElement('div');
     this.gameContainer.id = 'game-container';
     document.body.appendChild(this.gameContainer);
+  }
+
+  createMenu() {
+    const menu = document.createElement('div');
+    menu.id = 'menu';
+    const moves = document.createElement('div');
+    moves.id = 'moves';
+    this.movesEl = moves;
+    const newGame = document.createElement('button');
+    newGame.id = 'new-game';
+    newGame.textContent = 'New Game';
+
+    newGame.addEventListener('click', () => {
+      this.startNewGame();
+    });
+
+    menu.appendChild(moves);
+    menu.appendChild(newGame);
+    document.body.appendChild(menu);
   }
 
   createCard(card) {
@@ -59,6 +87,7 @@ export default class View {
         case 'ignored':
           break;
       }
+      this.movesEl.textContent = `Moves: ${this.game.moves}`;
     });
 
     return cardElement;
