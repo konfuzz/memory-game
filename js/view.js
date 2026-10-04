@@ -16,7 +16,21 @@ export default class View {
   createCard(card) {
     const cardElement = document.createElement('div');
     cardElement.classList.add('card');
-    cardElement.textContent = card;
+
+    const cardFront = document.createElement('div');
+    cardFront.classList.add('card-front');
+
+    const cardBack = document.createElement('div');
+    cardBack.classList.add('card-back');
+
+    const cardInner = document.createElement('div');
+    cardInner.classList.add('card-inner');
+
+    cardFront.textContent = card;
+    cardBack.textContent = '👔';
+    cardInner.appendChild(cardBack);
+    cardInner.appendChild(cardFront);
+    cardElement.appendChild(cardInner);
     return cardElement;
   }
 
