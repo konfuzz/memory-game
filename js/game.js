@@ -7,6 +7,7 @@ export default class Game {
     this.currentCard = null;
     this.state = 'idle';
     this.moves = 0;
+    this.leaderBoard = this.getLeaderboard();
   }
 
   start() {
@@ -55,6 +56,9 @@ export default class Game {
         this.currentCard = null;
         const isWin = this.matchedCards.length === this.cards.length;
         this.state = isWin ? 'won' : 'idle';
+        if (isWin) {
+          this.setLeaderboard();
+        }
         return { status: 'pair', isWin };
       }
 
@@ -72,5 +76,16 @@ export default class Game {
     if (this.state === 'resolving') {
       this.state = 'idle';
     }
+  }
+
+  getLeaderboard() {
+    return JSON.parse(window.localStorage.getItem('mg-scores')) || [];
+  }
+
+  setLeaderboard() {
+    this.leaderBoard.push({ moves: this.moves, timestamp: Date.now() });
+    this.leaderBoard = this.leaderBoard.sort((a, b) => a.moves - b.moves).slice(0, 10);
+
+    window.localStorage.setItem('mg-scores', JSON.stringify(this.leaderBoard));
   }
 }

@@ -5,6 +5,8 @@ export default class View {
     game.start();
     this.firstCard = null;
     this.movesEl = null;
+    this.winModal = this.createWinModal();
+    this.leaderboardModal = this.createLeaderboardModal();
     this.createMenu();
     this.createGameContainer();
     this.startNewGame();
@@ -33,12 +35,22 @@ export default class View {
     newGame.id = 'new-game';
     newGame.textContent = 'New Game';
 
+    const openLeaderboardButton = document.createElement('button');
+    openLeaderboardButton.id = 'open-leaderboard';
+    openLeaderboardButton.textContent = 'Leaderboard';
+
+    openLeaderboardButton.addEventListener('click', () => {
+      this.openLeaderboard();
+    });
+
     newGame.addEventListener('click', () => {
       this.startNewGame();
     });
 
     menu.appendChild(moves);
     menu.appendChild(newGame);
+    menu.appendChild(openLeaderboardButton);
+
     document.body.appendChild(menu);
   }
 
@@ -64,6 +76,7 @@ export default class View {
 
     cardElement.addEventListener('click', () => {
       const result = this.game.flipCard(cardElement.id);
+
       switch (result.status) {
         case 'flip':
           cardElement.classList.add('active');
@@ -72,6 +85,10 @@ export default class View {
         case 'pair':
           cardElement.classList.add('active');
           this.firstCard = null;
+          if (result.isWin) {
+            this.openWinModal();
+            this.createLeadersList(this.game.getLeaderboard());
+          }
           break;
         case 'fail': {
           const firstCard = this.firstCard;
@@ -95,5 +112,90 @@ export default class View {
 
   populateGameContainer(cards) {
     this.gameContainer.replaceChildren(...cards.map(card => this.createCard(card)));
+  }
+
+  createModal(id) {
+    const modal = document.createElement('dialog');
+    modal.id = id;
+    modal.setAttribute('closedby', 'any');
+    return modal;
+  }
+
+  createWinModal() {
+    const modal = this.createModal('win-modal');
+    const wrapper = document.createElement('div');
+    const text = document.createElement('p');
+    text.textContent = 'You won!';
+    wrapper.appendChild(text);
+
+    const movesEl = document.createElement('p');
+    movesEl.classList.add('moves');
+    wrapper.appendChild(movesEl);
+
+    const newGameButton = document.createElement('button');
+    newGameButton.textContent = 'New Game';
+    newGameButton.addEventListener('click', () => {
+      modal.close();
+      this.startNewGame();
+    });
+    wrapper.appendChild(newGameButton);
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', () => {
+      modal.close();
+    });
+    wrapper.appendChild(closeButton);
+
+    modal.appendChild(wrapper);
+    document.body.append(modal);
+    return modal;
+  }
+
+  openWinModal() {
+    this.winModal.showModal();
+    this.winModal.querySelector('.moves').textContent = `Moves: ${this.game.moves}`;
+  }
+
+  createLeaderboardModal() {
+    const modal = this.createModal('leaderboard-modal');
+    const wrapper = document.createElement('div');
+
+    const header = document.createElement('h2');
+    header.textContent = 'Leaderboard';
+    wrapper.appendChild(header);
+
+    const scores = this.game.getLeaderboard();
+    const scoresList = document.createElement('ol');
+    this.scoresList = scoresList;
+    this.createLeadersList(scores);
+
+    wrapper.appendChild(scoresList);
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', () => {
+      modal.close();
+    });
+    wrapper.appendChild(closeButton);
+
+    modal.appendChild(wrapper);
+    document.body.append(modal);
+    return modal;
+  }
+
+  createLeadersList(scores) {
+    console.log(scores);
+    this.scoresList.replaceChildren();
+    console.log(this.scoresList);
+    scores.forEach(score => {
+      const li = document.createElement('li');
+      li.textContent = `Moves: ${score.moves} --- Time: ${new Date(score.timestamp).toLocaleDateString('ru-RU')}`;
+      this.scoresList.appendChild(li);
+    });
+  }
+
+  openLeaderboard() {
+    this.leaderboardModal.showModal();
   }
 }
