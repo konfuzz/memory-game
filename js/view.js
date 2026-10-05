@@ -180,9 +180,15 @@ export default class View {
     const scores = this.game.getLeaderboard();
     const scoresList = document.createElement('ol');
     this.scoresList = scoresList;
-    this.createLeadersList(scores);
+
+    const emptyMessage = document.createElement('p');
+    emptyMessage.textContent = 'No results yet';
+    this.emptyMessage = emptyMessage;
 
     wrapper.appendChild(scoresList);
+    wrapper.appendChild(emptyMessage);
+
+    this.createLeadersList(scores);
 
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
@@ -198,6 +204,9 @@ export default class View {
 
   createLeadersList(scores) {
     this.scoresList.replaceChildren();
+    const isEmpty = scores.length === 0;
+    this.scoresList.hidden = isEmpty;
+    this.emptyMessage.hidden = !isEmpty;
     scores.forEach(score => {
       const li = document.createElement('li');
       li.textContent = `Moves: ${score.moves} --- Time: ${new Date(score.timestamp).toLocaleDateString('ru-RU')}`;
@@ -206,6 +215,7 @@ export default class View {
   }
 
   openLeaderboard() {
+    this.createLeadersList(this.game.getLeaderboard());
     this.leaderboardModal.showModal();
   }
 }
