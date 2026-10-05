@@ -16,7 +16,12 @@ export default class View {
     this.game.start();
     this.populateGameContainer(this.game.cards);
     this.firstCard = null;
-    this.movesEl.textContent = 'Moves: 0';
+    this.updateCounters();
+  }
+
+  updateCounters() {
+    this.movesEl.textContent = `Moves: ${this.game.moves}`;
+    this.pairsEl.textContent = `Pairs: ${this.game.matchedCards.length / 2} / ${this.game.cards.length / 2}`;
   }
 
   createGameContainer() {
@@ -28,9 +33,16 @@ export default class View {
   createMenu() {
     const menu = document.createElement('div');
     menu.id = 'menu';
+    const counters = document.createElement('div');
+    counters.id = 'counters';
     const moves = document.createElement('div');
     moves.id = 'moves';
     this.movesEl = moves;
+    const pairs = document.createElement('div');
+    pairs.id = 'pairs';
+    this.pairsEl = pairs;
+    counters.appendChild(moves);
+    counters.appendChild(pairs);
     const newGame = document.createElement('button');
     newGame.id = 'new-game';
     newGame.textContent = 'New Game';
@@ -47,7 +59,7 @@ export default class View {
       this.startNewGame();
     });
 
-    menu.appendChild(moves);
+    menu.appendChild(counters);
     menu.appendChild(newGame);
     menu.appendChild(openLeaderboardButton);
 
@@ -104,7 +116,7 @@ export default class View {
         case 'ignored':
           break;
       }
-      this.movesEl.textContent = `Moves: ${this.game.moves}`;
+      this.updateCounters();
     });
 
     return cardElement;
@@ -185,9 +197,7 @@ export default class View {
   }
 
   createLeadersList(scores) {
-    console.log(scores);
     this.scoresList.replaceChildren();
-    console.log(this.scoresList);
     scores.forEach(score => {
       const li = document.createElement('li');
       li.textContent = `Moves: ${score.moves} --- Time: ${new Date(score.timestamp).toLocaleDateString('ru-RU')}`;
