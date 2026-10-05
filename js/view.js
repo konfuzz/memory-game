@@ -207,9 +207,10 @@ export default class View {
     const isEmpty = scores.length === 0;
     this.scoresList.hidden = isEmpty;
     this.emptyMessage.hidden = !isEmpty;
-    scores.forEach(score => {
+    scores.forEach((score, index) => {
       const li = document.createElement('li');
-      li.textContent = `Moves: ${score.moves} --- Time: ${new Date(score.timestamp).toLocaleDateString('ru-RU')}`;
+      const date = new Date(score.timestamp).toLocaleDateString('ru-RU');
+      li.textContent = `${index + 1}. Moves: ${score.moves} · ${date}`;
       this.scoresList.appendChild(li);
     });
   }
